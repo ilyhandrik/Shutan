@@ -2,10 +2,10 @@
 
 Online PvP shooter on JavaScript
 
-##Client side
+## Client side
 
 Uses PIXI for powerfull 2d-rendering with Web-GL.
 
-##Server side
+## Server side
 
 Written on Node.js, uses Matter.js physics engine.
