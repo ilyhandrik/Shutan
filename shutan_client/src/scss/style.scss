@@ -1,0 +1,16 @@
+$color: #fff;
+html {
+    background-color: $color;
+}
+#app {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+#pixi {
+    border: 1px solid  #000;
+}
+.tools {
+    margin-top: 32px;
+}
