@@ -1,10 +1,9 @@
 const WebSocket = require('ws');
 const Matter = require('matter-js');
+const { Engine, World, Render, Bodies } = Matter;
 const matterFix = require('./matterFix');
 
 const fix = new matterFix();
-
-const { Engine, World, Render, Bodies } = Matter;
 const engine = Engine.create(fix.options);
 
 class Scene {
@@ -43,26 +42,22 @@ class FireBall {
     }
 }
 
-const scene = new Scene(0, 680, 1500, 200);
+const scene = new Scene(500, 600, 1000, 100);
 const player = new Player(515, 0, 30);
 
 World.add(engine.world, [scene.matter, player.matter]);
 Engine.run(engine);
-// engine.timing.timeScale = 0.5;
+engine.timing.timeScale = 1;
 
 const fireBallArray = [];
 
 const fire = function fire(v) {
-    const v1 = { x: player.matter.position.x - 500, y: player.matter.position.y };
-    const v2 = { x: v.x - 500, y: v.y };
+    const v1 = { x: player.matter.position.x, y: player.matter.position.y };
+    const v2 = { x: v.x, y: v.y };
     const v3 = Matter.Vector.angle(v1, v2);
     const v4 = Matter.Vector.rotate({ x: 0.0003, y: 0.00 }, v3);
-    console.log(v1);
-    console.log(v2);
-    console.log(v3);
-    console.log(v4);
     const fireBall = new FireBall(v1.x, v1.y);
-    fireBallArray[0] = fireBall;
+    fireBallArray.push(fireBall);
     World.add(engine.world, fireBall.matter);
     Matter.Body.applyForce(fireBall.matter, v1, v4);
 }
@@ -115,10 +110,7 @@ wss.on('connection', ws => {
                 x: player.matter.position.x,
                 y: player.matter.position.y,
             },
-            fireballs: {
-                x: fireBallArray[0].matter.position.x,
-                y: fireBallArray[0].matter.position.y,
-            },
+            fireballs: fireballs,
         }
         ws.send(JSON.stringify(data));
     }, 16);

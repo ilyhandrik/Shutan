@@ -33,7 +33,6 @@ class Fireball {
         this.graphic = new PIXI.Graphics();
         this.graphic.beginFill(0xFFFF00);
         this.graphic.drawCircle(x, y, 8);
-        this.pos = this.graphic.position;
         app.stage.addChild(this.graphic);
     }
 
@@ -63,24 +62,22 @@ const player = new Player(0, 0, 30);
 const rect = new Rectangle(0, 580, 1000, 20);
 console.log(rect);
 const fireballs = [];
-fireballs[0] = new Fireball(500, 0);
 
 const messageHandler = function messageHandler(string) {
     const data = JSON.parse(string);
     player.move(data.player.x, data.player.y);
-    fireballs[0].move(data.fireballs.x, data.fireballs.y);
-    // console.log(fireballs[0].graphic.position.x + '  -  ' + fireballs[0].graphic.position.y);
-/*     if (data.fireballs.length) {
+    if (data.fireballs.length) {
         if (fireballs.length !== data.fireballs.length) {
             const i = data.fireballs.length - 1;
-            fireballs.push(new Fireball(data.fireballs[i].x, data.fireballs[i].y));
+            const fb = new Fireball(data.fireballs[i].x, data.fireballs[i].y);
+            fireballs.push(fb);
+            console.log(`${data.fireballs[i].x} - ${data.fireballs[i].y}`);
         }
     }
     fireballs.forEach((fireball, index) => {
         fireball.move(data.fireballs[index].x, data.fireballs[index].y);
-        console.log(fireballs[fireballs.length - 1].graphic.position.x);
-    }); */
-
+    });
+    console.log(`${data.fireballs[data.fireballs.length - 1].x} - ${data.fireballs[data.fireballs.length - 1].y}`);
 };
 
 const socket = new WebSocket('ws://localhost:8080');
