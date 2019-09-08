@@ -111,13 +111,16 @@ wss.on('connection', ws => {
             y: el.matter.position.y,
         }))
         const data = {
-            player: {
-                x: player.matter.position.x,
-                y: player.matter.position.y,
-            },
-            fireballs: {
-                x: fireBallArray[0].matter.position.x,
-                y: fireBallArray[0].matter.position.y,
+            type: 'frameData',
+            data: {
+                player: {
+                    x: player.matter.position.x,
+                    y: player.matter.position.y,
+                },
+                fireballs: {
+                    x: fireBallArray[0].matter.position.x,
+                    y: fireBallArray[0].matter.position.y,
+                },
             },
         }
         ws.send(JSON.stringify(data));
