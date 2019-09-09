@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 
 export class Base {
-    constructor(x,y) {
+    constructor() {
         this.graphic = new PIXI.Graphics();
     }
 
@@ -13,7 +13,7 @@ export class Base {
 
 export class Player extends Base {
     constructor(x, y, r) {
-        super(x,y);
+        super();
         this.graphic.beginFill(0xFFFFFF);
         this.graphic.drawCircle(x, y, r);
     }
@@ -21,7 +21,7 @@ export class Player extends Base {
 
 export class Fireball extends Base {
     constructor(x, y) {
-        super(x,y);
+        super();
         this.graphic.beginFill(0xFFFF00);
         this.graphic.drawCircle(x, y, 8);
     }
@@ -29,7 +29,7 @@ export class Fireball extends Base {
 
 export class Rectangle extends Base {
     constructor(x, y, w, h) {
-        super(x,y);
+        super(x, y);
         this.graphic.beginFill(0xFFFF00);
         this.graphic.lineStyle(2, 0xFFFF00);
         this.graphic.drawRect(x, y, w, h);

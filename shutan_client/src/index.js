@@ -20,6 +20,8 @@ const fireballs = [];
 fireballs[0] = new Fireball(500, 0);
 app.stage.addChild(fireballs[0].graphic);
 
+let playerName;
+
 const messageHandler = function messageHandler(string) {
     const data = JSON.parse(string);
     player.move(data.player.x, data.player.y);
@@ -37,9 +39,9 @@ const messageHandler = function messageHandler(string) {
         }); */
 };
 
-const connection = new Connect('player_1');
+let connection;
 
-connection.messageCallback = (type, data) => {;
+connection.messageCallback = (type, data) => {
     switch (type) {
     case 'frameData':
         player.move(data.player.x, data.player.y);
@@ -88,4 +90,18 @@ document.body.addEventListener('keyup', (event) => {
 
 app.renderer.plugins.interaction.on('mousedown', (e) => {
     connection.send('fire', e.data.global);
+});
+
+
+const connectButton = document.querySelector('.buttonConnect');
+const playerNameInput = document.querySelector('#playerName');
+
+playerNameInput.addEventListener('input', (e) => {
+    playerName = e.target.value;
+});
+
+connectButton.addEventListener('click', () => {
+    if (playerName) {
+        connection = new Connect(playerName);
+    }
 });

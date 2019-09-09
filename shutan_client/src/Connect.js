@@ -1,7 +1,7 @@
 export default class Connect {
     constructor(playerName) {
         this.playerName = playerName;
-      
+
         this.socket = new WebSocket('ws://localhost:8080');
         this.socket.onopen = () => {
             this.socket.onmessage = (event) => {
