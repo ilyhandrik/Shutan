@@ -73,7 +73,69 @@ World.add(engine.world, fireBall.matter);
 const wss = new WebSocket.Server({
     port: 8080,
 });
-wss.on('connection', ws => {
+
+class playerConnection {
+    constructor(name, socket) {
+        this.name = name;
+        this.status = 'ready';
+        this.socket = socket;
+        this.socket.on('message', messageString => {
+            this.messageHandler(messageString);
+        })
+    }
+    messageCallback(type, data) {
+        if (type === 'connect') {
+            this.name = data;
+            console.log(data);
+        }
+    }
+
+    messageHandler(messageString) {
+        const message = JSON.parse(messageString);
+        this.messageCallback(message.type, message.data);
+    }
+    send(type, data) {
+        const sendJSON = JSON.stringify({ type, data });
+        this.socket.send(sendJSON);
+    }
+}
+
+const playerConnections = [];
+const rooms = [];
+
+class Room {
+    constructor(leftPlayer, rightPlayer) {
+        this.leftPlayer = leftPlayer;
+        this.rightPlayer = rightPlayer;
+        leftPlayer.socket.send('connect', rightPlayer.name);
+        rightPlayer.socket.send('connect', leftPlayer.name);
+    }
+}
+
+const connectHandler = function (socket) {
+    const newPlayer = new playerConnection('name', socket);
+    playerConnections.push(newPlayer);
+
+    if (playerConnections.length > 1) {
+        const readyPlayer = playerConnections.find(connection => (connection.status === 'ready'));
+        if (readyPlayer) {
+            rooms.push(new Room(readyPlayer, newPlayer));
+        } else  {
+            newPlayer.socket.send('wait', playerConnections.length);
+        }
+    }
+};
+
+const messageHandler = function(messageString) {
+    const message = JSON.parse(messageString);
+    switch (message.type) {
+        case 'connect': console.log('player ' + message.data + ' connected!');
+    }
+}
+
+wss.on('connection', connectHandler);
+
+/* wss.on('connection', ws => {
     ws.on('message', messageString => {
         const message = JSON.parse(messageString);
         switch (message.type) {
@@ -101,10 +163,10 @@ wss.on('connection', ws => {
         }
     });
     setInterval(() => {
-/*         const array = new Float32Array(2);
+        const array = new Float32Array(2);
         array[0] = player.matter.position.x;
         array[1] = player.matter.position.y;
-        ws.send(array); */
+        ws.send(array);
         const fireballs = fireBallArray.map((el, index) => ({
             id: index,
             x: el.matter.position.x,
@@ -125,4 +187,4 @@ wss.on('connection', ws => {
         }
         ws.send(JSON.stringify(data));
     }, 16);
-});
+}); */

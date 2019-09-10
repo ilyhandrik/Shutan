@@ -7,6 +7,7 @@ export default class Connect {
             this.socket.onmessage = (event) => {
                 this.messageHandler(event.data);
             };
+            this.send('connect', this.playerName);
         };
     }
 

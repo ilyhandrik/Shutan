@@ -39,19 +39,18 @@ const messageHandler = function messageHandler(string) {
         }); */
 };
 
-let connection;
+let connection = {};
 
 connection.messageCallback = (type, data) => {
+    console.log(`${type}   -   ${data}`);
     switch (type) {
     case 'frameData':
         player.move(data.player.x, data.player.y);
         fireballs[0].move(data.fireballs.x, data.fireballs.y);
         break;
     case 'connect':
-        console.log(data.playerName);
         break;
     case 'ready':
-        console.log(data);
         break;
     default: break;
     }
@@ -92,16 +91,19 @@ app.renderer.plugins.interaction.on('mousedown', (e) => {
     connection.send('fire', e.data.global);
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('ready');
+    const connectButton = document.querySelector('.buttonConnect');
+    const playerNameInput = document.querySelector('#playerName');
 
-const connectButton = document.querySelector('.buttonConnect');
-const playerNameInput = document.querySelector('#playerName');
+    playerNameInput.addEventListener('input', (e) => {
+        playerName = e.target.value;
+    });
 
-playerNameInput.addEventListener('input', (e) => {
-    playerName = e.target.value;
-});
-
-connectButton.addEventListener('click', () => {
-    if (playerName) {
-        connection = new Connect(playerName);
-    }
+    connectButton.addEventListener('click', () => {
+        console.log(playerName);
+        if (playerName) {
+            connection = new Connect(playerName);
+        }
+    });
 });
