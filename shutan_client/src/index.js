@@ -2,6 +2,7 @@ import './scss/style.scss';
 import * as PIXI from 'pixi.js';
 import { Player, Rectangle, Fireball } from './GameEntityes';
 import Connect from './Connect';
+import Ui from './Ui/Ui';
 
 const app = new PIXI.Application({
     width: 1000,
@@ -11,6 +12,8 @@ const app = new PIXI.Application({
 document.querySelector('#pixi').appendChild(app.view);
 
 app.renderer.view.addEventListener('contextmenu', () => { });
+
+const ui = new Ui('ilya', 'left');
 
 const player = new Player(0, 0, 30);
 app.stage.addChild(player.graphic);
@@ -41,7 +44,7 @@ const messageHandler = function messageHandler(string) {
 
 let connection = {};
 
-connection.messageCallback = (type, data) => {
+const messageCallback = (type, data) => {
     console.log(`${type}   -   ${data}`);
     switch (type) {
     case 'frameData':
@@ -49,6 +52,17 @@ connection.messageCallback = (type, data) => {
         fireballs[0].move(data.fireballs.x, data.fireballs.y);
         break;
     case 'connect':
+        if (ui.page !== 'lobby') {
+            ui.getLobby();
+            ui.addPlayer(data.name, 'left');
+            ui.addPlayer(playerName, 'right');
+        } else {
+            ui.addPlayer(data.name, 'right');
+        }
+        break;
+    case 'wait':
+        ui.getLobby();
+        ui.addPlayer(data.name, 'left');
         break;
     case 'ready':
         break;
@@ -104,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(playerName);
         if (playerName) {
             connection = new Connect(playerName);
+            connection.messageCallback = messageCallback;
         }
     });
 });

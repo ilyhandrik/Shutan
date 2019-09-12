@@ -96,6 +96,7 @@ class playerConnection {
     }
     send(type, data) {
         const sendJSON = JSON.stringify({ type, data });
+        console.log(sendJSON);
         this.socket.send(sendJSON);
     }
 }
@@ -107,23 +108,40 @@ class Room {
     constructor(leftPlayer, rightPlayer) {
         this.leftPlayer = leftPlayer;
         this.rightPlayer = rightPlayer;
-        leftPlayer.socket.send('connect', rightPlayer.name);
-        rightPlayer.socket.send('connect', leftPlayer.name);
+        leftPlayer.send('connect', {
+            position: 'left',
+            name: rightPlayer.name,
+        });
+        rightPlayer.send('connect', {
+            position: 'right',
+            name: leftPlayer.name,
+        });
     }
 }
 
-const connectHandler = function (socket) {
-    const newPlayer = new playerConnection('name', socket);
-    playerConnections.push(newPlayer);
+const getName = (socket) => new Promise((resolve, reject) => {
+    socket.on('message', messageString => {
+        const message = JSON.parse(messageString);
+        if(message.type === 'connect') {
+            resolve(message.data);
+        }
+    });
+});
 
-    if (playerConnections.length > 1) {
+const connectHandler = function (socket) {
+    getName(socket).then((name) => {
+        const newPlayer = new playerConnection(name, socket);
         const readyPlayer = playerConnections.find(connection => (connection.status === 'ready'));
         if (readyPlayer) {
             rooms.push(new Room(readyPlayer, newPlayer));
         } else  {
-            newPlayer.socket.send('wait', playerConnections.length);
+            newPlayer.send('wait', {
+                position: 'left',
+                name: name,
+            });
         }
-    }
+        playerConnections.push(newPlayer);
+    })
 };
 
 const messageHandler = function(messageString) {
@@ -132,6 +150,7 @@ const messageHandler = function(messageString) {
         case 'connect': console.log('player ' + message.data + ' connected!');
     }
 }
+
 
 wss.on('connection', connectHandler);
 
