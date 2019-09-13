@@ -12,7 +12,7 @@ export default class Connect {
     }
 
     messageCallback() {
-        console.log(`Messages callback is empty${this.playerName}`);
+        console.log(`Messages callback is empty lol${this.playerName}`);
     }
 
     messageHandler(messageString) {
