@@ -2,6 +2,8 @@ import UiPlayer from './UiPlayer';
 
 export default class Ui {
     constructor(name, position) {
+        this.player = null;
+        this.enemy = null;
         this.name = name;
         this.position = position;
         this.page = 'start';
@@ -11,7 +13,11 @@ export default class Ui {
     }
 
     addPlayer(name, position) {
-        this.player = new UiPlayer(name, position);
+        this.player = new UiPlayer(name, position, 'player');
+    }
+
+    addEnemy(name, position) {
+        this.enemy = new UiPlayer(name, position, 'enemy');
     }
 
     getLobby() {

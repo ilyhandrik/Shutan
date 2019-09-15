@@ -52,17 +52,14 @@ const messageCallback = (type, data) => {
         fireballs[0].move(data.fireballs.x, data.fireballs.y);
         break;
     case 'connect':
-        if (ui.page !== 'lobby') {
-            ui.getLobby();
-            ui.addPlayer(data.name, 'left');
-            ui.addPlayer(playerName, 'right');
-        } else {
-            ui.addPlayer(data.name, 'right');
-        }
+        ui.player.setName(playerName);
+        ui.player.setPosition(data.position);
+        ui.enemy.setName(data.name);
+        ui.enemy.setPosition(data.position === 'left' ? 'left' : 'right');
         break;
     case 'wait':
-        ui.getLobby();
-        ui.addPlayer(data.name, 'left');
+        ui.player.setName(data.name);
+        ui.player.setPosition('left');
         break;
     case 'ready':
         break;
@@ -119,6 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (playerName) {
             connection = new Connect(playerName);
             connection.messageCallback = messageCallback;
+            ui.getLobby();
+            ui.addPlayer(null, 'left');
+            ui.addEnemy(null, 'right');
         }
     });
 });
