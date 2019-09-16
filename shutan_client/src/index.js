@@ -45,7 +45,7 @@ const messageHandler = function messageHandler(string) {
 let connection = {};
 
 const messageCallback = (type, data) => {
-    console.log(`${type}   -   ${data}`);
+    console.log(`${type}   -   ${JSON.stringify(data)}`);
     switch (type) {
     case 'frameData':
         player.move(data.player.x, data.player.y);
@@ -55,13 +55,20 @@ const messageCallback = (type, data) => {
         ui.player.setName(playerName);
         ui.player.setPosition(data.position);
         ui.enemy.setName(data.name);
-        ui.enemy.setPosition(data.position === 'left' ? 'left' : 'right');
+        ui.enemy.setPosition(data.position === 'left' ? 'right' : 'left');
         break;
     case 'wait':
         ui.player.setName(data.name);
         ui.player.setPosition('left');
         break;
     case 'ready':
+        break;
+    case 'status':
+        ui.player.setStatus(data.player);
+        ui.enemy.setStatus(data.enemy);
+        break;
+    case 'start':
+        ui.start(3);
         break;
     default: break;
     }
@@ -112,13 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     connectButton.addEventListener('click', () => {
-        console.log(playerName);
         if (playerName) {
             connection = new Connect(playerName);
             connection.messageCallback = messageCallback;
             ui.getLobby();
             ui.addPlayer(null, 'left');
             ui.addEnemy(null, 'right');
+            ui.player.toggleReadyHandler = (status) => {
+                connection.send('ready_status', status);
+            };
         }
     });
 });

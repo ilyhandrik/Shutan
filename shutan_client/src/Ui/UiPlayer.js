@@ -6,6 +6,7 @@ export default class UiPlayer {
         this._name = name;
         this._position = position;
         this.type = type;
+        this.status = '';
         this.images = {
             left: img1,
             right: img2,
@@ -25,20 +26,40 @@ export default class UiPlayer {
             this.playerImg.style.display = 'none';
         } else {
             this.uiName.textContent = this.name;
-            this.button.textContent = 'ready';
+            this.button.textContent = 'ready?';
+        }
+        if (this.type === 'player') {
+            this.button.addEventListener('click', this.toggleReadyStatus.bind(this));
+        }
+        this.toggleReadyHandler = () => { };
+    }
+
+    toggleReadyStatus() {
+        this.status = this.status === 'ready' ? 'connected' : 'ready';
+        this.toggleReadyHandler(this.status);
+    }
+
+    setStatus(status) {
+        if (status === 'ready') {
+            this.button.textContent = 'ready!!!';
+        } else {
+            this.button.textContent = 'ready?';
         }
     }
 
     setName(name) {
+        this.stopWaitAnimation();
         this._name = name;
         this.uiName.textContent = name;
         this.playerImg.style.display = 'block';
-        this.button.textContent = 'ready';
+        this.button.textContent = 'ready?';
     }
 
     setPosition(position) {
         this._position = position;
-        this.playerImg.src = this.images[this.position];
+        this.playerImg.src = this.images[this._position];
+        this.uiNode.classList.remove('left');
+        this.uiNode.classList.remove('right');
         this.uiNode.classList.add(position);
     }
 
@@ -57,6 +78,6 @@ export default class UiPlayer {
     }
 
     stopWaitAnimation() {
-        window.clearInteval(this.waitAnimationId);
+        window.clearInterval(this.waitAnimationId);
     }
 }

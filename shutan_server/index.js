@@ -77,24 +77,29 @@ const wss = new WebSocket.Server({
 class playerConnection {
     constructor(name, socket) {
         this.name = name;
-        this.status = 'ready';
+        this.status = 'connect';
         this.socket = socket;
         this.socket.on('message', messageString => {
             this.messageHandler(messageString);
-        })
+        });
+        this.statusHandler = () => {};
     }
     messageCallback(type, data) {
-        if (type === 'connect') {
-            this.name = data;
-            console.log(data);
+        switch (type) {
+            case 'connect': this.name = data;
+                break;
+            case 'ready_status': this.status = data;
+                this.statusHandler(this.status);
+                break;
         }
     }
 
     messageHandler(messageString) {
+        console.log(messageString);
         const message = JSON.parse(messageString);
         this.messageCallback(message.type, message.data);
     }
-    send(type, data) {
+    send(type, data = '') {
         const sendJSON = JSON.stringify({ type, data });
         console.log(sendJSON);
         this.socket.send(sendJSON);
@@ -108,6 +113,10 @@ class Room {
     constructor(leftPlayer, rightPlayer) {
         this.leftPlayer = leftPlayer;
         this.rightPlayer = rightPlayer;
+        this.leftPlayer.status = 'connect';
+        this.rightPlayer.status = 'connect';
+        this.leftPlayer.statusHandler = this.changeStatus.bind(this);
+        this.rightPlayer.statusHandler = this.changeStatus.bind(this);
         leftPlayer.send('connect', {
             position: 'left',
             name: rightPlayer.name,
@@ -116,6 +125,21 @@ class Room {
             position: 'right',
             name: leftPlayer.name,
         });
+    }
+
+    changeStatus(isReady) {
+        this.leftPlayer.send('status', {
+            player: this.leftPlayer.status,
+            enemy: this.rightPlayer.status,
+        });
+        this.rightPlayer.send('status', {
+            player: this.rightPlayer.status,
+            enemy: this.leftPlayer.status,
+        });
+        if (this.leftPlayer.status === 'ready' && this.rightPlayer.status === 'ready') {
+            this.leftPlayer.send('start');
+            this.rightPlayer.send('start');
+        }
     }
 }
 
@@ -131,7 +155,7 @@ const getName = (socket) => new Promise((resolve, reject) => {
 const connectHandler = function (socket) {
     getName(socket).then((name) => {
         const newPlayer = new playerConnection(name, socket);
-        const readyPlayer = playerConnections.find(connection => (connection.status === 'ready'));
+        const readyPlayer = playerConnections.find(connection => (connection.status === 'connect'));
         if (readyPlayer) {
             rooms.push(new Room(readyPlayer, newPlayer));
         } else  {
@@ -146,6 +170,7 @@ const connectHandler = function (socket) {
 
 const messageHandler = function(messageString) {
     const message = JSON.parse(messageString);
+    console.log(messageString);
     switch (message.type) {
         case 'connect': console.log('player ' + message.data + ' connected!');
     }

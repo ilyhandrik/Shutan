@@ -26,17 +26,26 @@
       </div>
       <div id="lobby">
         <div class="players">
-          <div class="player player_player">
+          <div class="player player_player left">
             <div class="playerName">Ilyhandrik</div>
             <button class="buttonReady">Ready!</button>
           </div>
 <!--           <svg class="vs"
           preserveAspectRatio="none"
           xmlns="http://www.w3.org/2000/svg">
-          <line id="vsDashedBorder"x1="0" y1="90" x2="280" y2="90">
+          <line id="vsDashedBorder"x1="0" y1="4" x2="280" y2="90">
           </line>
           </svg> -->
-          <div class="player player_enemy">
+          <div class="start">
+            <svg class="start_countdown_svg" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <circle id="start_countdown_border" cx="75" cy="75" r="70">
+                    <animateTransform xmlns="http://www.w3.org/2000/svg" attributeType="XML" attributeName="transform" type="rotate"
+                                from="0 0 0" to="360 0 0" dur="12s" repeatCount="indefinite" />
+                </circle>
+            </svg>
+            <div class="start_countdown">9</div>
+          </div>
+          <div class="player player_enemy right">
             <div class="playerName">waiting...</div>
             <button class="buttonReady">
                 <svg class="buttonReady_waiting_svg" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
