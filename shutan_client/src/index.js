@@ -109,25 +109,28 @@ app.renderer.plugins.interaction.on('mousedown', (e) => {
     connection.send('fire', e.data.global);
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('ready');
+
+function connectButtonHandler() {
+    if (playerName) {
+        connection = new Connect(playerName);
+        connection.messageCallback = messageCallback;
+        ui.getLobby();
+        ui.addPlayer(null, 'left');
+        ui.addEnemy(null, 'right');
+        ui.player.toggleReadyHandler = (status) => {
+            connection.send('ready_status', status);
+        };
+    }
+}
+
+function init() {
     const connectButton = document.querySelector('.buttonConnect');
     const playerNameInput = document.querySelector('#playerName');
 
     playerNameInput.addEventListener('input', (e) => {
         playerName = e.target.value;
     });
+    connectButton.addEventListener('click', connectButtonHandler);
+}
 
-    connectButton.addEventListener('click', () => {
-        if (playerName) {
-            connection = new Connect(playerName);
-            connection.messageCallback = messageCallback;
-            ui.getLobby();
-            ui.addPlayer(null, 'left');
-            ui.addEnemy(null, 'right');
-            ui.player.toggleReadyHandler = (status) => {
-                connection.send('ready_status', status);
-            };
-        }
-    });
-});
+document.addEventListener('DOMContentLoaded', init);

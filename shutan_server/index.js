@@ -48,7 +48,7 @@ const player = new Player(515, 0, 30);
 
 World.add(engine.world, [scene.matter, player.matter]);
 Engine.run(engine);
-// engine.timing.timeScale = 0.5;
+// engine.timing.timeScale = 0.5; lol
 
 const fireBallArray = [];
 
