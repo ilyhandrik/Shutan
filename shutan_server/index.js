@@ -1,6 +1,8 @@
 const WebSocket = require('ws');
 const Matter = require('matter-js');
 const matterFix = require('./matterFix');
+const PlayerConnection  = require('./PlayerConnection');
+const Room  = require('./Room');
 
 const fix = new matterFix();
 
@@ -74,74 +76,8 @@ const wss = new WebSocket.Server({
     port: 8080,
 });
 
-class playerConnection {
-    constructor(name, socket) {
-        this.name = name;
-        this.status = 'connect';
-        this.socket = socket;
-        this.socket.on('message', messageString => {
-            this.messageHandler(messageString);
-        });
-        this.statusHandler = () => {};
-    }
-    messageCallback(type, data) {
-        switch (type) {
-            case 'connect': this.name = data;
-                break;
-            case 'ready_status': this.status = data;
-                this.statusHandler(this.status);
-                break;
-        }
-    }
-
-    messageHandler(messageString) {
-        console.log(messageString);
-        const message = JSON.parse(messageString);
-        this.messageCallback(message.type, message.data);
-    }
-    send(type, data = '') {
-        const sendJSON = JSON.stringify({ type, data });
-        console.log(sendJSON);
-        this.socket.send(sendJSON);
-    }
-}
-
 const playerConnections = [];
 const rooms = [];
-
-class Room {
-    constructor(leftPlayer, rightPlayer) {
-        this.leftPlayer = leftPlayer;
-        this.rightPlayer = rightPlayer;
-        this.leftPlayer.status = 'connect';
-        this.rightPlayer.status = 'connect';
-        this.leftPlayer.statusHandler = this.changeStatus.bind(this);
-        this.rightPlayer.statusHandler = this.changeStatus.bind(this);
-        leftPlayer.send('connect', {
-            position: 'left',
-            name: rightPlayer.name,
-        });
-        rightPlayer.send('connect', {
-            position: 'right',
-            name: leftPlayer.name,
-        });
-    }
-
-    changeStatus(isReady) {
-        this.leftPlayer.send('status', {
-            player: this.leftPlayer.status,
-            enemy: this.rightPlayer.status,
-        });
-        this.rightPlayer.send('status', {
-            player: this.rightPlayer.status,
-            enemy: this.leftPlayer.status,
-        });
-        if (this.leftPlayer.status === 'ready' && this.rightPlayer.status === 'ready') {
-            this.leftPlayer.send('start');
-            this.rightPlayer.send('start');
-        }
-    }
-}
 
 const getName = (socket) => new Promise((resolve, reject) => {
     socket.on('message', messageString => {
@@ -154,10 +90,10 @@ const getName = (socket) => new Promise((resolve, reject) => {
 
 const connectHandler = function (socket) {
     getName(socket).then((name) => {
-        const newPlayer = new playerConnection(name, socket);
+        const newPlayer = new PlayerConnection(name, socket);
         const readyPlayer = playerConnections.find(connection => (connection.status === 'connect'));
         if (readyPlayer) {
-            rooms.push(new Room(readyPlayer, newPlayer));
+            rooms.push(new Room([readyPlayer, newPlayer]));
         } else  {
             newPlayer.send('wait', {
                 position: 'left',
