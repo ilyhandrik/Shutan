@@ -2,12 +2,16 @@ const WebSocket = require('ws');
 const Matter = require('matter-js');
 const matterFix = require('./matterFix');
 const PlayerConnection  = require('./PlayerConnection');
-const Room  = require('./Room');
+const Room = require('./Room');
+const Game = require('./Game');
 
 const fix = new matterFix();
 
 const { Engine, World, Render, Bodies } = Matter;
 const engine = Engine.create(fix.options);
+
+const game = new Game();
+game.start();
 
 class Scene {
     constructor(x, y, w, h) {
@@ -104,7 +108,7 @@ const connectHandler = function (socket) {
     })
 };
 
-const messageHandler = function(messageString) {
+const messageHandler = function (messageString) {
     const message = JSON.parse(messageString);
     console.log(messageString);
     switch (message.type) {
@@ -112,59 +116,58 @@ const messageHandler = function(messageString) {
     }
 }
 
+    wss.on('connection', connectHandler);
 
-wss.on('connection', connectHandler);
-
-/* wss.on('connection', ws => {
-    ws.on('message', messageString => {
-        const message = JSON.parse(messageString);
-        switch (message.type) {
-            case 'move':
-                switch (message.data) {
-                    case 'up':
-                        player.matter.force = { x: 0, y: -0.07 };
-                        break;
-                    case 'down':
-                        player.matter.force = { x: 0, y: 0.07 };
-                        break;
-                    case 'left':
-                        player.matter.force = { x: -0.07, y: 0 };
-                        break;
-                    case 'right':
-                        player.matter.force = { x: 0.07, y: 0 };
-                        break;
-                    default: break;
-                }
-                break;
-            case 'fire':
-                fire(message.data);
-                break;
-            default: break;
-        }
-    });
-    setInterval(() => {
-        const array = new Float32Array(2);
-        array[0] = player.matter.position.x;
-        array[1] = player.matter.position.y;
-        ws.send(array);
-        const fireballs = fireBallArray.map((el, index) => ({
-            id: index,
-            x: el.matter.position.x,
-            y: el.matter.position.y,
-        }))
-        const data = {
-            type: 'frameData',
-            data: {
-                player: {
-                    x: player.matter.position.x,
-                    y: player.matter.position.y,
+    /* wss.on('connection', ws => {
+        ws.on('message', messageString => {
+            const message = JSON.parse(messageString);
+            switch (message.type) {
+                case 'move':
+                    switch (message.data) {
+                        case 'up':
+                            player.matter.force = { x: 0, y: -0.07 };
+                            break;
+                        case 'down':
+                            player.matter.force = { x: 0, y: 0.07 };
+                            break;
+                        case 'left':
+                            player.matter.force = { x: -0.07, y: 0 };
+                            break;
+                        case 'right':
+                            player.matter.force = { x: 0.07, y: 0 };
+                            break;
+                        default: break;
+                    }
+                    break;
+                case 'fire':
+                    fire(message.data);
+                    break;
+                default: break;
+            }
+        });
+        setInterval(() => {
+            const array = new Float32Array(2);
+            array[0] = player.matter.position.x;
+            array[1] = player.matter.position.y;
+            ws.send(array);
+            const fireballs = fireBallArray.map((el, index) => ({
+                id: index,
+                x: el.matter.position.x,
+                y: el.matter.position.y,
+            }))
+            const data = {
+                type: 'frameData',
+                data: {
+                    player: {
+                        x: player.matter.position.x,
+                        y: player.matter.position.y,
+                    },
+                    fireballs: {
+                        x: fireBallArray[0].matter.position.x,
+                        y: fireBallArray[0].matter.position.y,
+                    },
                 },
-                fireballs: {
-                    x: fireBallArray[0].matter.position.x,
-                    y: fireBallArray[0].matter.position.y,
-                },
-            },
-        }
-        ws.send(JSON.stringify(data));
-    }, 16);
-}); */
+            }
+            ws.send(JSON.stringify(data));
+        }, 16);
+    }); */
