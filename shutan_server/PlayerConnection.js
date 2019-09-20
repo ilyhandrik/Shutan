@@ -9,14 +9,18 @@ module.exports = class PlayerConnection {
             this.messageHandler(messageString);
         });
         this.statusHandler = () => {};
+        this.gameHandler = () => {};
     }
 
     messageCallback(type, data) {
+        console.log('from player Connection')
         switch (type) {
             case 'connect': this.name = data;
                 break;
             case 'ready_status': this.status = data;
                 this.statusHandler(this.status);
+                break;
+            case 'game': this.gameHandler(this.name, type, data);
                 break;
         }
     }

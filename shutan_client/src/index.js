@@ -15,8 +15,10 @@ app.renderer.view.addEventListener('contextmenu', () => { });
 
 const ui = new Ui('ilya', 'left');
 
-const player = new Player(0, 0, 30);
-app.stage.addChild(player.graphic);
+const player1 = new Player(0, 0, 30);
+const player2 = new Player(0, 0, 30);
+app.stage.addChild(player1.graphic);
+app.stage.addChild(player2.graphic);
 const rect = new Rectangle(0, 580, 1000, 20);
 app.stage.addChild(rect.graphic);
 const fireballs = [];
@@ -44,6 +46,11 @@ const messageHandler = function messageHandler(string) {
 
 let connection = {};
 
+function tickCallback(data) {
+    player1.move(data.players[0].x, data.players[0].y);
+    player2.move(data.players[1].x, data.players[1].y);
+}
+
 const messageCallback = (type, data) => {
     console.log(`${type}   -   ${JSON.stringify(data)}`);
     switch (type) {
@@ -70,6 +77,9 @@ const messageCallback = (type, data) => {
     case 'start':
         ui.start(3);
         break;
+    case 'tick':
+        tickCallback(data);
+        break;
     default: break;
     }
 };
@@ -84,16 +94,16 @@ reader.readAsArrayBuffer(event.data); */
 document.body.addEventListener('keydown', (event) => {
     switch (event.key) {
     case 'ArrowUp':
-        connection.send('move', 'up');
+        connection.send('game', 'up');
         break;
     case 'ArrowDown':
-        connection.send('move', 'down');
+        connection.send('game', 'down');
         break;
     case 'ArrowLeft':
-        connection.send('move', 'left');
+        connection.send('game', 'left');
         break;
     case 'ArrowRight':
-        connection.send('move', 'right');
+        connection.send('game', 'right');
         break;
     default: break;
     }

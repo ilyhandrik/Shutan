@@ -1,3 +1,5 @@
+const Game = require('./Game');
+
 module.exports = class Room {
     constructor(players) {
         this.players = players;
@@ -5,6 +7,7 @@ module.exports = class Room {
         this.rightPlayer = players[1];
         this.setToPlayers('status', 'connect');
         this.setToPlayers('statusHandler', this.changeStatus.bind(this));
+        this.setToPlayers('gameHandler', this.gameHandler.bind(this));
         this.sendAllPlayers(
             'connect',
             {
@@ -31,8 +34,25 @@ module.exports = class Room {
             }
         )
         if (this.players.every((player) => player.status === 'ready')) {
-            this.sendAllPlayers('start');
+            this.start();
         }
+    }
+
+    start() {
+        this.sendAllPlayers('start');
+        this.game = new Game(this.leftPlayer.name, this.rightPlayer.name);
+        this.game.tick = this.tickHandler.bind(this);
+        this.game.start();
+    }
+    
+    gameHandler(player, type, data) {
+        console.log(player + ' - ' + type + ' - ' + data);
+        this.game.usersControlHandler(player, type, data);
+    }
+
+    tickHandler(data) {
+        this.leftPlayer.send('tick', data);
+        this.rightPlayer.send('tick', data);
     }
 
     sendAllPlayers(type, firstPlayerData = null, secondPlayerData = null) {

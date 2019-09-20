@@ -10,9 +10,6 @@ const fix = new matterFix();
 const { Engine, World, Render, Bodies } = Matter;
 const engine = Engine.create(fix.options);
 
-const game = new Game();
-game.start();
-
 class Scene {
     constructor(x, y, w, h) {
         const options = {
