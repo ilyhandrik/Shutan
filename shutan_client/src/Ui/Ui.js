@@ -40,9 +40,9 @@ export default class Ui {
                 document.querySelector('.start_countdown_svg').classList.add('hide');
                 setTimeout(() => {
                     this.goGame();
-                }, 500);
+                }, 10);
             }
-        }, 1000);
+        }, 50);
     }
 
     goGame() {

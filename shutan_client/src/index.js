@@ -22,8 +22,6 @@ app.stage.addChild(player2.graphic);
 const rect = new Rectangle(0, 580, 1000, 20);
 app.stage.addChild(rect.graphic);
 const fireballs = [];
-fireballs[0] = new Fireball(500, 0);
-app.stage.addChild(fireballs[0].graphic);
 
 let playerName;
 
@@ -49,6 +47,14 @@ let connection = {};
 function tickCallback(data) {
     player1.move(data.players[0].x, data.players[0].y);
     player2.move(data.players[1].x, data.players[1].y);
+    if (data.fireballs.length !== fireballs.length) {
+        const fireball = new Fireball(500, 0);
+        fireballs.push(fireball);
+        app.stage.addChild(fireball.graphic);
+    }
+    data.fireballs.forEach((fireball, index) => {
+        fireballs[index].move(fireball.x, fireball.y);
+    });
 }
 
 const messageCallback = (type, data) => {
@@ -94,16 +100,16 @@ reader.readAsArrayBuffer(event.data); */
 document.body.addEventListener('keydown', (event) => {
     switch (event.key) {
     case 'ArrowUp':
-        connection.send('game', 'up');
+        connection.send('game', { type: 'move', data: 'up' });
         break;
     case 'ArrowDown':
-        connection.send('game', 'down');
+        connection.send('game', { type: 'move', data: 'down' });
         break;
     case 'ArrowLeft':
-        connection.send('game', 'left');
+        connection.send('game', { type: 'move', data: 'left' });
         break;
     case 'ArrowRight':
-        connection.send('game', 'right');
+        connection.send('game', { type: 'move', data: 'right' });
         break;
     default: break;
     }
@@ -116,7 +122,7 @@ document.body.addEventListener('keyup', (event) => {
 });
 
 app.renderer.plugins.interaction.on('mousedown', (e) => {
-    connection.send('fire', e.data.global);
+    connection.send('game', { type: 'fire', data: e.data.global });
 });
 
 
