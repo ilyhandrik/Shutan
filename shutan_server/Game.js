@@ -37,6 +37,7 @@ module.exports = class Game {
         ]);
         this.add(this.players.get(this.leftPlayerName));
         this.add(this.players.get(this.rightPlayerName));
+        this.add(new FireBall(100, 0));
         this.Engine.run(this.engine);
         setInterval(() => {
             this.tick({
@@ -86,11 +87,11 @@ module.exports = class Game {
 
     fire(player, vector) {
         const v1 = {
-            x: player.matter.position.x - 500,
+            x: player.matter.position.x,
             y: player.matter.position.y,
         };
         const v2 = {
-            x: vector.x - 500,
+            x: vector.x,
             y: vector.y,
         };
         const v3 = Matter.Vector.angle(v1, v2);

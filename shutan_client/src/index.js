@@ -48,7 +48,7 @@ function tickCallback(data) {
     player1.move(data.players[0].x, data.players[0].y);
     player2.move(data.players[1].x, data.players[1].y);
     if (data.fireballs.length !== fireballs.length) {
-        const fireball = new Fireball(500, 0);
+        const fireball = new Fireball(0, 0);
         fireballs.push(fireball);
         app.stage.addChild(fireball.graphic);
     }
