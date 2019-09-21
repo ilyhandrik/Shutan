@@ -2,37 +2,26 @@ const Matter = require('matter-js');
 const { Bodies } = Matter;
 
 class Scene {
-    constructor(x, y, w, h) {
+    constructor(x, y, w, h, collisionFilter) {
         const options = {
-            collisionFilter: {
-                mask: 6,
-                category: 8,
-            },
+            collisionFilter,
             isStatic: true
         }
         this.matter = Bodies.rectangle(x, y, w, h, options);
     }
 }
 class Player {
-    constructor(x, y, r) {
-        const options = {
-            collisionFilter: {
-                category: 2,
-                mask: 8,
-            },
-        };
+    constructor(x, y, r, collisionFilter, fireBallCF) {
+        const options = { collisionFilter };
         this.matter = Bodies.circle(x, y, r, options);
+        this.fireBallCF = fireBallCF;
     }
 }
 
 class FireBall {
-    constructor(x, y) {
+    constructor(x, y, collisionFilter) {
         const r = 8;
-        const options = {
-            collisionFilter: {
-                category: 4,
-            },
-        };
+        const options = { collisionFilter };
         this.matter = Bodies.circle(x, y, 1, options);
     }
 }

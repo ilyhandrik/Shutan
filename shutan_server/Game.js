@@ -1,6 +1,7 @@
 const Matter = require('matter-js');
 const matterFix = require('./matterFix');
 const { Scene, Player, FireBall } = require('./GameObjects');
+const FILTERS = require('./CFILTERS');
 
 const { Engine, World, Bodies, Body } = Matter;
 const fix = new matterFix();
@@ -23,21 +24,20 @@ module.exports = class Game {
     }
 
     start() {
-        this.scene = new Scene(500, 680, 1000, 200);
+        this.scene = new Scene(500, 680, 1000, 200, FILTERS.SCENE);
         this.add(this.scene);
         this.players = new Map([
             [
                 this.leftPlayerName,
-                new Player(300, 0, 30),
+                new Player(300, 0, 30, FILTERS.LEFT_PLAYER, FILTERS.LEFT_FB),
             ],
             [
                 this.rightPlayerName,
-                new Player(300, 0, 30),
+                new Player(600, 0, 30, FILTERS.RIGHT_PLAYER, FILTERS.RIGHT_FB),
             ],
         ]);
         this.add(this.players.get(this.leftPlayerName));
         this.add(this.players.get(this.rightPlayerName));
-        this.add(new FireBall(100, 0));
         this.Engine.run(this.engine);
         setInterval(() => {
             this.tick({
@@ -100,7 +100,7 @@ module.exports = class Game {
             y: 0.00
         }, v3);
 
-        const fireBall = new FireBall(v1.x, v1.y);
+        const fireBall = new FireBall(v1.x, v1.y, player.fireBallCF);
         this.fireBalls.push(fireBall);
         this.add(fireBall);
         this.Body.applyForce(fireBall.matter, v1, v4);
