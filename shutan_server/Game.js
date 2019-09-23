@@ -3,12 +3,13 @@ const matterFix = require('./matterFix');
 const { Scene, Player, FireBall } = require('./GameObjects');
 const FILTERS = require('./CFILTERS');
 
-const { Engine, World, Bodies, Body } = Matter;
+const { Engine, World, Bodies, Body, Events } = Matter;
 const fix = new matterFix();
 
 module.exports = class Game {
     constructor(leftPlayerName, rightPlayerName) {
         const { Engine, World } = Matter;
+        this.Events = Events;
         this.Engine = Engine;
         this.World = World;
         this.Body = Body;
@@ -16,7 +17,7 @@ module.exports = class Game {
         this.leftPlayerName = leftPlayerName;
         this.rightPlayerName = rightPlayerName;
         this.tick = () => { };
-        this.fireBalls = [];
+        this.fireBalls = new Map();
     }
 
     add(object) {
@@ -36,6 +37,7 @@ module.exports = class Game {
                 new Player(600, 0, 30, FILTERS.RIGHT_PLAYER, FILTERS.RIGHT_FB),
             ],
         ]);
+        this.Events.on(this.engine, 'collisionStart', this.collisionHandler.bind(this));
         this.add(this.players.get(this.leftPlayerName));
         this.add(this.players.get(this.rightPlayerName));
         this.Engine.run(this.engine);
@@ -51,10 +53,10 @@ module.exports = class Game {
                         y: this.players.get(this.rightPlayerName).matter.position.y,
                     }
                 ],
-                fireballs: this.fireBalls.map(fireball => {
+                fireballs: Array.from(this.fireBalls).map(fireball => {
                     return {
-                        x: fireball.matter.position.x,
-                        y: fireball.matter.position.y,
+                        x: fireball[1].matter.position.x,
+                        y: fireball[1].matter.position.y,
                     };
                 })
             });
@@ -101,15 +103,41 @@ module.exports = class Game {
         }, v3);
 
         const fireBall = new FireBall(v1.x, v1.y, player.fireBallCF);
-        this.fireBalls.push(fireBall);
+        this.fireBalls.set(fireBall.matter.id, fireBall);
+        player.fireBalls.set(fireBall.matter.id, fireBall);
         this.add(fireBall);
         this.Body.applyForce(fireBall.matter, v1, v4);
     }
 
-    addFireball(x, y) {
-        const fireBall = new FireBall(x, y);
-        this.fireBalls.push(fireBall);
-        this.add(fireBall);
-        this.Body.applyForce(fireBall.matter, v1, v4);
+    collisionHandler(event) {
+        const playerA = this.players.get(this.leftPlayerName);
+        const playerB = this.players.get(this.rightPlayerName);
+        const playersArray = [playerA, playerB];
+        let findPlayer;
+        event.pairs.forEach(pair => {
+            let playerIndex;
+            let bodyIndex;
+            const bodyArray = [pair.bodyA.id, pair.bodyB.id]
+            playersArray.forEach((player, playerI) => {
+                bodyArray.forEach((body, bodyI) => {
+                    if (player.matter.id === body) {
+                        playerIndex = playerI;
+                        bodyIndex = bodyI;
+                        console.log('ya tut');
+                        console.log('this id=' + playerIndex + ', othe id =' + 1 ^ playerIndex);
+                        if (playersArray[1 ^ playerIndex].fireBalls.get(bodyArray[1 ^ bodyIndex])) {
+                            console.log('Hit!!!!!!!!!');
+                        }
+                    }
+                });
+            });
+        });
+    }
+
+    findCollisionedPlayer(a, b, playersArray) {
+        return playersArray.find(player => {
+            //console.log(player[1].matter.id);
+            return player[1].matter.id === a.id || player[1].matter.id === b.id;
+        });
     }
 }

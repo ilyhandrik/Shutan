@@ -15,6 +15,9 @@ class Player {
         const options = { collisionFilter };
         this.matter = Bodies.circle(x, y, r, options);
         this.fireBallCF = fireBallCF;
+        this.id = this.matter.id;
+        this.fireBalls = new Map();
+        console.log(this.id);
     }
 }
 
