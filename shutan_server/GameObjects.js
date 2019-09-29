@@ -12,13 +12,27 @@ class Scene {
 }
 class Player {
     constructor(x, y, r, collisionFilter, fireBallCF) {
+        this.health = 100;
+        this.damageValue = 0;
         const options = { collisionFilter };
         this.matter = Bodies.circle(x, y, r, options);
         this.fireBallCF = fireBallCF;
         this.id = this.matter.id;
         this.fireBalls = new Map();
-        console.log(this.id);
     }
+
+    damage(damage) {
+        this.damageValue = damage;
+        this.health = this.health - damage;
+    }
+
+    getDamage() {
+        const damage = this.damageValue;
+        this.damageValue = 0;
+        return damage;
+    }
+
+
 }
 
 class FireBall {

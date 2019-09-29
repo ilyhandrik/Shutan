@@ -1,69 +1,17 @@
 import './scss/style.scss';
-import * as PIXI from 'pixi.js';
-import { Player, Rectangle, Fireball } from './GameEntityes';
 import Connect from './Connect';
 import Ui from './Ui/Ui';
-
-const app = new PIXI.Application({
-    width: 1000,
-    height: 600,
-});
-
-document.querySelector('#pixi').appendChild(app.view);
-
-app.renderer.view.addEventListener('contextmenu', () => { });
+import Game from './Game';
 
 const ui = new Ui('ilya', 'left');
 
-const player1 = new Player(0, 0, 30);
-const player2 = new Player(0, 0, 30);
-app.stage.addChild(player1.graphic);
-app.stage.addChild(player2.graphic);
-const rect = new Rectangle(0, 580, 1000, 20);
-app.stage.addChild(rect.graphic);
-const fireballs = [];
-
 let playerName;
-
-const messageHandler = function messageHandler(string) {
-    const data = JSON.parse(string);
-    player.move(data.player.x, data.player.y);
-    fireballs[0].move(data.fireballs.x, data.fireballs.y);
-    // console.log(fireballs[0].graphic.position.x + '  -  ' + fireballs[0].graphic.position.y);
-    /*     if (data.fireballs.length) {
-            if (fireballs.length !== data.fireballs.length) {
-                const i = data.fireballs.length - 1;
-                fireballs.push(new Fireball(data.fireballs[i].x, data.fireballs[i].y));
-            }
-        }
-        fireballs.forEach((fireball, index) => {
-            fireball.move(data.fireballs[index].x, data.fireballs[index].y);
-            console.log(fireballs[fireballs.length - 1].graphic.position.x);
-        }); */
-};
-
 let connection = {};
-
-function tickCallback(data) {
-    player1.move(data.players[0].x, data.players[0].y);
-    player2.move(data.players[1].x, data.players[1].y);
-    if (data.fireballs.length !== fireballs.length) {
-        const fireball = new Fireball(0, 0);
-        fireballs.push(fireball);
-        app.stage.addChild(fireball.graphic);
-    }
-    data.fireballs.forEach((fireball, index) => {
-        fireballs[index].move(fireball.x, fireball.y);
-    });
-}
+let game = null;
 
 const messageCallback = (type, data) => {
-    console.log(`${type}   -   ${JSON.stringify(data)}`);
+    // console.log(`${type}   -   ${JSON.stringify(data)}`);
     switch (type) {
-    case 'frameData':
-        player.move(data.player.x, data.player.y);
-        fireballs[0].move(data.fireballs.x, data.fireballs.y);
-        break;
     case 'connect':
         ui.player.setName(playerName);
         ui.player.setPosition(data.position);
@@ -84,7 +32,7 @@ const messageCallback = (type, data) => {
         ui.start(3);
         break;
     case 'tick':
-        tickCallback(data);
+        game.tickHandler(data);
         break;
     default: break;
     }
@@ -114,6 +62,7 @@ document.body.addEventListener('keydown', (event) => {
     default: break;
     }
 });
+
 document.body.addEventListener('keyup', (event) => {
     switch (event.key) {
     case 'ArrowUp': break;
@@ -121,14 +70,10 @@ document.body.addEventListener('keyup', (event) => {
     }
 });
 
-app.renderer.plugins.interaction.on('mousedown', (e) => {
-    connection.send('game', { type: 'fire', data: e.data.global });
-});
-
-
 function connectButtonHandler() {
     if (playerName) {
         connection = new Connect(playerName);
+        game = new Game(connection);
         connection.messageCallback = messageCallback;
         ui.getLobby();
         ui.addPlayer(null, 'left');

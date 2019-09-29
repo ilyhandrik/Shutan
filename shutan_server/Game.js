@@ -47,10 +47,12 @@ module.exports = class Game {
                     {
                         x: this.players.get(this.leftPlayerName).matter.position.x,
                         y: this.players.get(this.leftPlayerName).matter.position.y,
+                        damage: this.players.get(this.leftPlayerName).getDamage(),
                     },
                     {
                         x: this.players.get(this.rightPlayerName).matter.position.x,
                         y: this.players.get(this.rightPlayerName).matter.position.y,
+                        damage: this.players.get(this.rightPlayerName).getDamage(),
                     }
                 ],
                 fireballs: Array.from(this.fireBalls).map(fireball => {
@@ -127,11 +129,17 @@ module.exports = class Game {
                         console.log('this id=' + playerIndex + ', othe id =' + 1 ^ playerIndex);
                         if (playersArray[1 ^ playerIndex].fireBalls.get(bodyArray[1 ^ bodyIndex])) {
                             console.log('Hit!!!!!!!!!');
+                            this.hitHandler(playersArray[playerI], )
                         }
                     }
                 });
             });
         });
+    }
+
+    hitHandler(player) {
+        player.damage(10);
+        console.log(player.health);
     }
 
     findCollisionedPlayer(a, b, playersArray) {

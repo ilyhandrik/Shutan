@@ -74,7 +74,7 @@ const fireBall = new FireBall(0, 0);
 fireBallArray[0] = fireBall;
 World.add(engine.world, fireBall.matter);
 const wss = new WebSocket.Server({
-    port: 8080,
+    port: 3000,
 });
 
 const playerConnections = [];
