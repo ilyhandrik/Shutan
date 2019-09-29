@@ -10,7 +10,7 @@ export default class Game {
         });
         this.text = null;
         this.players = [];
-        this.fireballs = [];
+        this.fireballs = new Map();
         document.querySelector('#pixi').appendChild(this.app.view);
         this.app.renderer.view.addEventListener('contextmenu', () => { });
         this.app.renderer.plugins.interaction.on('mousedown', this.fireHandler.bind(this));
@@ -36,15 +36,28 @@ export default class Game {
     tickHandler(data) {
         this.players[0].show(data.players[0].x, data.players[0].y);
         this.players[1].show(data.players[1].x, data.players[1].y);
-        if (data.fireballs.length !== this.fireballs.length) {
-            const fireball = new Fireball(0, 0);
-            this.fireballs.push(fireball);
-            this.app.stage.addChild(fireball.graphic);
-        }
-        this.checkDamage(data.players);
-        data.fireballs.forEach((fireball, index) => {
-            this.fireballs[index].move(fireball.x, fireball.y);
+
+        data.fireballs.forEach((fbFromServer) => {
+            let fireball = this.fireballs.get(fbFromServer.id);
+            if (!fireball) {
+                fireball = new Fireball(0, 0);
+                console.log('new Fireball!!!!!!!!!');
+                this.fireballs.set(fbFromServer.id, fireball);
+                this.app.stage.addChild(fireball.graphic);
+            }
+            fireball.move(fbFromServer.x, fbFromServer.y);
+            fireball.isDirty = false;
         });
+        Array.from(this.fireballs).forEach((fireBall) => {
+            if (fireBall[1].isDirty) {
+                this.app.stage.removeChild(fireBall[1].graphic);
+                this.fireballs.delete(fireBall[0]);
+            } else {
+                fireBall[1].isDirty = true;
+            }
+        });
+
+        this.checkDamage(data.players);
     }
 
     checkDamage(players) {

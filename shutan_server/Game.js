@@ -42,6 +42,14 @@ module.exports = class Game {
         this.add(this.players.get(this.rightPlayerName));
         this.Engine.run(this.engine);
         setInterval(() => {
+            fireballs: Array.from(this.fireBalls).forEach(fireball => {
+                if (fireball[1].isReadyToRemove) {
+                    this.World.remove(this.engine.world, fireball[1].matter);
+                    this.fireBalls.delete(fireball[1].matter.id);
+                    this.players.get(this.leftPlayerName).fireBalls.delete(fireball[1].matter.id);
+                    this.players.get(this.rightPlayerName).fireBalls.delete(fireball[1].matter.id);
+                }
+            });
             this.tick({
                 players: [
                     {
@@ -57,6 +65,7 @@ module.exports = class Game {
                 ],
                 fireballs: Array.from(this.fireBalls).map(fireball => {
                     return {
+                        id: fireball[1].matter.id,
                         x: fireball[1].matter.position.x,
                         y: fireball[1].matter.position.y,
                     };
@@ -68,20 +77,22 @@ module.exports = class Game {
     usersControlHandler(playerName, type, data) {
         const player = this.players.get(playerName);
         switch (data.type) {
-            case 'move': switch (data.data) {
-                case 'up':
-                    player.matter.force = { x: 0, y: -0.07 };
-                    break;
-                case 'down':
-                    player.matter.force = { x: 0, y: 0.07 };
-                    break;
-                case 'left':
-                    player.matter.force = { x: -0.07, y: 0 };
-                    break;
-                case 'right':
-                    player.matter.force = { x: 0.07, y: 0 };
-                    break;
-            }
+            case 'move':
+                switch (data.data) {
+                    case 'up':
+                        player.matter.force = { x: 0, y: -0.07 };
+                        break;
+                    case 'down':
+                        player.matter.force = { x: 0, y: 0.07 };
+                        break;
+                    case 'left':
+                        player.matter.force = { x: -0.07, y: 0 };
+                        break;
+                    case 'right':
+                        player.matter.force = { x: 0.07, y: 0 };
+                        break;
+                };
+                break;
             case 'fire':
                 this.fire(player, data.data)
                 break;
@@ -98,15 +109,19 @@ module.exports = class Game {
             x: vector.x,
             y: vector.y,
         };
-        const v3 = Matter.Vector.angle(v1, v2);
+        const v3 = Matter.Vector.angle(
+            v1,
+            v2,
+        );
         const v4 = Matter.Vector.rotate({
-            x: 0.0003,
+            x: 0.02,
             y: 0.00
         }, v3);
 
         const fireBall = new FireBall(v1.x, v1.y, player.fireBallCF);
         this.fireBalls.set(fireBall.matter.id, fireBall);
         player.fireBalls.set(fireBall.matter.id, fireBall);
+
         this.add(fireBall);
         this.Body.applyForce(fireBall.matter, v1, v4);
     }
@@ -125,11 +140,13 @@ module.exports = class Game {
                     if (player.matter.id === body) {
                         playerIndex = playerI;
                         bodyIndex = bodyI;
-                        console.log('ya tut');
-                        console.log('this id=' + playerIndex + ', othe id =' + 1 ^ playerIndex);
-                        if (playersArray[1 ^ playerIndex].fireBalls.get(bodyArray[1 ^ bodyIndex])) {
-                            console.log('Hit!!!!!!!!!');
-                            this.hitHandler(playersArray[playerI], )
+                        const fireBall =
+                            playersArray[1 ^ playerIndex].fireBalls.get(bodyArray[1 ^ bodyIndex]);
+                        if (fireBall) {
+                            if (!fireBall.isPrepareToRemove) {
+                                fireBall.setRemoveTimer();
+                                this.hitHandler(playersArray[playerI])
+                            }
                         }
                     }
                 });

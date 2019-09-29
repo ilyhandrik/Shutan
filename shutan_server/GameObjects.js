@@ -39,7 +39,16 @@ class FireBall {
     constructor(x, y, collisionFilter) {
         const r = 8;
         const options = { collisionFilter };
-        this.matter = Bodies.circle(x, y, 1, options);
+        this.matter = Bodies.circle(x, y, 8, options);
+        this.isReadyToRemove = false;
+        this.isPrepareToRemove = false;
+    }
+
+    setRemoveTimer() {
+        this.isPrepareToRemove = true;
+        setTimeout(() => {
+            this.isReadyToRemove = true;
+        }, 70);
     }
 }
 

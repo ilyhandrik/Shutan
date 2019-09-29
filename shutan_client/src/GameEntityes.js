@@ -15,7 +15,8 @@ export class Player extends Base {
     constructor(x, y, r, appStage) {
         super();
         this.appStage = appStage;
-        this.graphic.beginFill(0xFFFFFF);
+        // this.graphic.beginFill(0xFFFFFF);
+        this.graphic.lineStyle(1, 0xFFFFFF, 1, 1);
         this.graphic.drawCircle(x, y, r);
         this.damage = [];
         this.damageOffset = 0;
@@ -24,10 +25,8 @@ export class Player extends Base {
 
     show(x, y) {
         this.move(x, y);
-        if (this.damageIndicators.length) {
-            this.damageIndicators.forEach((indicator) => {
-                indicator.tick(x, y);
-                if (!indicator.isLife) {
+      
+        if (!indicator.isLife) {
                     this.appStage.removeChild(indicator);
                 }
             });
@@ -35,7 +34,12 @@ export class Player extends Base {
     }
 
     addDamage(value) {
-        const indicator = new DamageIndicator(value, 1000);
+        const indicator = new DamageIndicator(
+            this.graphic.position.x,
+            this.graphic.position.y,
+            value,
+            1000,
+        );
         this.damageIndicators.push(indicator);
         this.appStage.addChild(indicator.text);
     }
@@ -44,7 +48,7 @@ export class Player extends Base {
 export class Fireball extends Base {
     constructor(x, y) {
         super();
-        this.graphic.beginFill(0xFFFF00);
+        this.graphic.lineStyle(1, 0xFFFF00, 1, 1);
         this.graphic.drawCircle(x, y, 8);
     }
 }
@@ -52,14 +56,14 @@ export class Fireball extends Base {
 export class Rectangle extends Base {
     constructor(x, y, w, h) {
         super(x, y);
-        this.graphic.beginFill(0xFFFF00);
-        this.graphic.lineStyle(2, 0xFFFF00);
+        // this.graphic.beginFill(0xFFFF00);
+        this.graphic.lineStyle(1, 0xFFFF00, 1, 1);
         this.graphic.drawRect(x, y, w, h);
     }
 }
 
 class DamageIndicator {
-    constructor(value, lifeTime) {
+    constructor(x, y, value, lifeTime) {
         this.offset = 0;
         this.isLife = true;
         this.step = 2;
@@ -70,6 +74,7 @@ class DamageIndicator {
             fill: 0xff1010,
             align: 'center',
         });
+        this.tick(x, y);
         setTimeout(() => {
             this.isLife = false;
             this.text.visible = false;
